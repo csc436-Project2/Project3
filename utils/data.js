@@ -2,68 +2,217 @@
 
 import supabase from "./supabase";
 
-const getCurrentUser = async () => {
-  const session = await supabase.auth.getSession();
-  if (session?.data?.session?.user) {
-    return session.data.session.user;
+const getUserBySlug = async (slug) => {
+  const { data, error } = await supabase
+    .from("profile")
+    .select("user_id")
+    .eq("slug", slug)
+    .limit(1)
+    .single();
+  if (error) {
+    return {
+      success: false,
+      error,
+    };
   }
 
-  return null;
-
-  // return {
-  //   id: 1,
-  //   email: "mgargano@gmail.com",
-  //   name: "Mat Gargano",
-  //   bio: "The quick brown fox.....",
-  //   avatar: "https://placebear.com/200/200",
-  // };
+  return {
+    success: true,
+    data,
+  };
 };
 
-const getLinks = (userId) => {
-  return [
-    {
-      id: 1,
-      userId: 1,
-      url: "https://twitter.com/foobar",
-      order: 1,
-      linkType: "social",
-      title: "Twitter",
-    },
-    {
-      id: 2,
-      userId: 1,
-      url: "https://facebook.com/foobar",
-      order: 2,
-      linkType: "social",
-      title: "Facebook",
-    },
-    {
-      id: 3,
-      userId: 1,
-      url: "https://mycompany.com",
-      order: 1,
-      linkType: "link",
-      title: "My Company!",
-    },
-    {
-      id: 4,
-      userId: 1,
-      url: "https://myteam.com",
-      order: 2,
-      linkType: "link",
-      title: "Go sportsball Go",
-    },
-  ];
+const getLatestUsers = async (num = 5) => {
+  const { data, error } = await supabase
+    .from("profile")
+    .select("name, slug")
+    .order("created_at", { ascending: false })
+    .limit(num);
+
+  if (error) {
+    return {
+      success: false,
+      error,
+    };
+  }
+
+  return {
+    success: true,
+    data,
+  };
 };
 
-const getLinksFiltered = (userId, by) => {
+const logout = async () => {
+  const { error } = await supabase.auth.signOut();
+  return { success: !error, error };
+};
+
+// const addNewLink = async (user_id, url, title, order, linkType = "link") => {
+const addNewLink = async (user_id, title, order, linkType = "link") => {
+  linkRequestData.data = null;
+  // const insertResponse = await supabase.from("links").insert({
+  const insertResponse = await supabase.from("todo").insert({
+    order,
+    title,
+    user_id,
+    linkType,
+    // url,
+  });
+
+  if (insertResponse.error) {
+    return {
+      success: false,
+      error: insertResponse.error,
+    };
+  }
+  return {
+    success: true,
+    message: "successfully added",
+    data: insertResponse.data,
+  };
+};
+// //***************DELETE A TODO******************
+// const deleteNewLink = async (user_id, title, order, linkType = "todo") => {
+//   linkRequestData.data = null;
+//   // const insertResponse = await supabase.from("links").insert({
+//   const deleteResponse = await supabase
+//     .from("todo")
+
+//     .delete({
+//       order,
+//       title,
+//       user_id,
+//       linkType,
+//     });
+
+//   if (deleteResponse.error) {
+//     return {
+//       success: false,
+//       error: deleteResponse.error,
+//     };
+//   }
+//   return {
+//     success: true,
+//     message: "successfully deleted",
+//     data: deleteResponse.data,
+//   };
+// };
+
+const getCurrentUser = async () => {
+  debugger;
+  // grab the session from supabase (which handles all authentication)
+  const session = await supabase.auth.getSession();
+  // if a user property exists in the session.data.session object
+  if (session?.data?.session?.user) {
+    //grab from the meta table we created for the current logged
+    // in user, and attach it to the user object under the key
+    // barge meta, this is so we can access for the current user's
+    // name and slug
+    const { data: bargeMeta, error } = await supabase
+      .from("profile")
+      .select("*")
+      .eq("user_id", session.data.session.user.id)
+      .single();
+
+    if (error) {
+      return {
+        success: false,
+        error,
+      };
+    }
+
+    // here we take the user from the session.data.session
+    // object and attach to it a property bargeMeta
+    // that holds the name and slug (and some other info
+    // that is not important)
+    const { data: socialLinks } = await getSocialLinks(
+      session.data.session.user.id
+    );
+    if (socialLinks?.error) {
+      return socialLinks;
+    }
+
+    const { data: linkLinks } = await getLinksLinks(
+      session.data.session.user.id
+    );
+    if (linkLinks?.error) {
+      return socialLinks;
+    }
+
+    const user = {
+      ...session.data.session.user,
+      bargeMeta,
+      socialLinks,
+      linkLinks,
+    };
+
+    return {
+      success: true,
+      data: user,
+    };
+  }
+  return {
+    success: true,
+    data: null,
+  };
+};
+const linkRequestData = {
+  data: null,
+};
+
+const getLinks = async (userId) => {
+  if (linkRequestData.data) {
+    return linkRequestData.data;
+  }
+
+  const { data, error } = await supabase
+    // choose the DB tabll to take information from
+    //.from("links")
+    .from("todo")
+    .select("*")
+    .eq("user_id", userId);
+  if (error) {
+    return {
+      success: false,
+      error,
+    };
+  }
+
+  linkRequestData.data = { success: true, data };
+
+  return { success: true, data };
+};
+
+const getLinksFiltered = async (userId, by) => {
   if (!["social", "link"].includes(by)) {
     return false;
   }
 
-  return getLinks()
+  if (!userId) {
+    return {
+      success: false,
+      error: {
+        message: "not logged in",
+      },
+    };
+  }
+
+  const { success, error = null, data = null } = await getLinks(userId);
+  if (!!error) {
+    return {
+      success: false,
+      error,
+    };
+  }
+
+  const linksFiltered = data
     .filter(({ linkType }) => linkType === by)
     .sort((a, b) => a.order - b.order);
+
+  return {
+    success: true,
+    data: linksFiltered,
+  };
 };
 
 const getSocialLinks = (userId) => {
@@ -74,23 +223,30 @@ const getLinksLinks = (userId) => {
   return getLinksFiltered(userId, "link");
 };
 
-//registerUser('foo@bar.com', '1234', 'John Doe', 'john-doe')
+// register a user//
+/**
+ * Register a user by passing in an email, password, name and slug
+ * @param {*} email
+ * @param {*} password
+ * @param {*} name
+ * @param {*} slug
+ * @returns plain old javascript object with success, message and optionally, the rest of the addMetaResponse.data object
+ */
 const registerUser = async (email, password, name, slug) => {
-  debugger;
-  const { data, error } = await supabase
+  const { data: registerData, error: registerError } = await supabase
     .from("profile")
     .select("*")
     .eq("slug", slug);
-  if (error) {
+  if (registerError) {
     return {
       success: false,
-      message: error.message,
+      error: registerError,
     };
   }
-  if (data.length > 0) {
+  if (registerData.length > 0) {
     return {
       success: false,
-      message: "User slug already exists",
+      error: registerError,
     };
   }
 
@@ -102,7 +258,7 @@ const registerUser = async (email, password, name, slug) => {
   if (authResponse.error) {
     return {
       success: false,
-      message: authResponse.error.message,
+      error: authResponse.error,
     };
   }
 
@@ -114,7 +270,7 @@ const registerUser = async (email, password, name, slug) => {
     if (addMetaResponse.error) {
       return {
         success: false,
-        message: addMetaResponse.error.message,
+        error: addMetaResponse.error,
       };
     }
     return {
@@ -127,10 +283,21 @@ const registerUser = async (email, password, name, slug) => {
 
   return {
     success: false,
-    message: "An unknown error has occurred",
+    error: {
+      message: "An unknown error has occurred",
+    },
   };
 };
 
+/**
+ * Log in a user
+ * @param {*} email
+ * @param {*} password
+ * @returns plain old javascript object with success, message and optionally, the rest of the addMetaResponse.data object
+ *
+ * NOTE, it previously responded with error as the name of the key, it was renamed to message
+ * for consistency
+ */
 const loginUser = async (email, password) => {
   const authResponse = await supabase.auth.signInWithPassword({
     email,
@@ -159,13 +326,16 @@ const loginUser = async (email, password) => {
     return {
       ...authResponse,
       meta,
+      message: "Successfully logged in, please wait to be redirected",
       success: true,
     };
   }
 
   return {
     success: false,
-    message: "An unknown error has occurred",
+    error: {
+      message: "An unknown error has occurred",
+    },
   };
 };
 
@@ -175,4 +345,9 @@ export {
   getLinksLinks,
   getSocialLinks,
   getCurrentUser,
+  addNewLink,
+  // deleteNewLink,
+  logout,
+  getLatestUsers,
+  getUserBySlug,
 };

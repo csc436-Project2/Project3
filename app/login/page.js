@@ -1,11 +1,7 @@
-/** @format */
-
-"use client";
-
-import Login from "csc-start/components/Login";
+import Login from "csc-start/components/Login"
 
 const Page = () => {
-  return <Login />;
-};
+    return <Login />;
+}
 
 export default Page;

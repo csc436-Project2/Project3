@@ -3,8 +3,12 @@
 import { registerUser } from "csc-start/utils/data";
 import { useReducer } from "react";
 import { useRouter } from "next/navigation";
+import useUserMustBeLogged from "csc-start/hooks/useUserMustBeLogged";
+import useUser from "csc-start/hooks/useUser";
 
 const Register = () => {
+  const { user } = useUser();
+  useUserMustBeLogged(user, "out", "/profile");
   const router = useRouter();
 
   function reducer(state, action) {
@@ -61,10 +65,9 @@ const Register = () => {
         >
           <span className="font-bold">
             {response.success
-              ? `Success ${response.message ? `: ` : ``}`
-              : "Failure: "}
+              ? `Success ${response.message}`
+              : `Failure: ${response.error.message}`}
           </span>
-          {response.message}
         </div>
       )}
       <h2 className="my-10 h1 text-center">Register</h2>
