@@ -6,13 +6,15 @@ import useUser from "csc-start/hooks/useUser";
 import useUserMustBeLogged from "csc-start/hooks/useUserMustBeLogged";
 import { addNewLink, deleteNewLink } from "csc-start/utils/data";
 import { useState, useEffect } from "react";
-
+import supabase from "csc-start/utils/supabase";
 const Profile = () => {
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [linkType, setLinkType] = useState("link");
-
+  const [currentUser, setCurrentUser] = useState(0);
   const [currentLinks, setCurrentLinks] = useState([]);
+  const [todos, setTodos] = useState([]);
+  const [inputDisabled, isInputDisabled] = useState(false);
   // const [checked, setChecked] = useState(false);
 
   // the user hook, will, provide us with the following, and it is completely abstracted away
@@ -30,6 +32,7 @@ const Profile = () => {
       }
 
       setCurrentLinks(tempCurrentLinks);
+      setCurrentUser(user);
     }
   }, [user, linkType]);
 
@@ -51,23 +54,33 @@ const Profile = () => {
     //handle success
   };
 
-  // const deleteLink = async (e) => {
-  //   e.preventDefault();
+  const deleteLink = async (e) => {
+    e.preventDefault();
 
-  //   const order = currentLinks.length - 1;
-  //   const deleteLink = await deleteNewLink(user.id, title, order, linkType);
-  //   //const addedLink = await addNewLink(user.id, title, order, linkType);
+    const order = currentLinks.length - 1;
+    const deleteLink = await deleteNewLink(user.id, title, order, linkType);
+    //const addedLink = await addNewLink(user.id, title, order, linkType);
 
-  //   if (deleteLink.success == false) {
-  //     //handle error
-  //     return;
+    if (deleteLink.success == false) {
+      //handle error
+      return;
+    }
+    // setUrl("");
+    setTitle("");
+    //@todo update this to either fake get the links (by taking the latest DB load + adding in the latest pushed link)
+    //  or make a new request....
+    refreshUser();
+    //handle success
+  };
+
+  // const deleteTodo = async (id: number) => {
+  // const deleteTodo = async (e) => {
+  //   try {
+  //     await supabase.from("todo").delete().eq("id", id).throwOnError();
+  //     setTodos(todos.filter((x) => x.id != id));
+  //   } catch (error) {
+  //     console.log("error", error);
   //   }
-  //   // setUrl("");
-  //   setTitle("");
-  //   //@todo update this to either fake get the links (by taking the latest DB load + adding in the latest pushed link)
-  //   //  or make a new request....
-  //   refreshUser();
-  //   //handle success
   // };
 
   // const handleChange = () => {
@@ -99,7 +112,7 @@ const Profile = () => {
               onClick={() => setLinkType("social")}
               className='button small'
             >
-              Todo List #1
+              Todo List #1:
             </button>
             <button
               disabled={linkType === "link"}
@@ -109,7 +122,22 @@ const Profile = () => {
               Todo List #2
             </button>
           </div>
-
+          <ul>
+            {currentLinks.map((link) => {
+              return (
+                <li key={link.id}>
+                  {link.title}
+                  {/* Future Delete Button */}
+                  <button
+                    className='button small text-25xl'
+                    onClick={(e) => deleteTodo(e)}
+                  >
+                    &times;
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
           <p className='h2 my-5'>
             Currently Viewing <span className='capitalize'>{linkType}</span> You
             added
@@ -132,7 +160,12 @@ const Profile = () => {
                   <tr key={link.id}>
                     <td>{link.title}</td>
                     {/* Future Delete Button */}
-                    <button className='button small text-25xl '>&times;</button>
+                    <button
+                      className='button small text-25xl'
+                      onClick={(e) => deleteTodo(e)}
+                    >
+                      &times;
+                    </button>
                   </tr>
                 );
               })}
@@ -141,11 +174,11 @@ const Profile = () => {
           <form onSubmit={addLink}>
             <p className='h2'>Add New Todo</p>
             <p className='my-5'>
-              <label htmlFor='title' className='inline-block w-[75px]'>
-                Todo Title:
+              <label htmlFor='todoTitle' className='inline-block w-[75px]'>
+                Todo List Title:
               </label>
               <input
-                id='title'
+                id='todoTitle'
                 className='border border-2 border-black px-2'
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -153,21 +186,25 @@ const Profile = () => {
                 type='text'
               />
             </p>
-            {/* <p className='my-5'>
-              <label htmlFor='url' className='inline-block w-[75px]'>
+            <p className='my-5'>
+              <label htmlFor='todoItems' className='inline-block w-[75px]'>
                 URL:
               </label>
               <input
                 className='border border-2 border-black px-2'
                 id='url'
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
+                value={todos}
+                onChange={(e) => setTodos(e.target.value)}
                 required
                 type='url'
               />
-            </p> */}
+            </p>
             <p className='text-center'>
-              <input type='submit' className='button small ' />
+              <input
+                type='submit'
+                className='button small '
+                disabled={isInputDisabled}
+              />
             </p>
           </form>
         </div>

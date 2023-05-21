@@ -1,3 +1,5 @@
+/** @format */
+
 import { getCurrentUser } from "csc-start/utils/data";
 import supabase from "csc-start/utils/supabase";
 import { useRef, useEffect, useState } from "react";

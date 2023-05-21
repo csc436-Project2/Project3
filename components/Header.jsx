@@ -1,18 +1,32 @@
+/** @format */
+"use client";
 import Image from "next/image";
-import cargoWhite from '../images/cargo-white.svg'
-import Link from 'next/link';
-
+import logo from "../images/logo.jpg";
+import Link from "next/link";
+import useUser from "csc-start/hooks/useUser";
 const Header = () => {
-    return <header className="barge bg-black flex justify-between items-center">
-        <Link href="/">
-            <Image src={cargoWhite} alt={'LinkBarge'} height="79" width="79" />
-        </Link>
-        <p className="h1 text-white">
-            <Link className="hover:text-brutal-yellow duration-300 transition-all" href="/">
-                BARGE
-            </Link>
+  const { user } = useUser();
+  console.log(user);
+  return (
+    <header className='barge bg-logo-yellow flex justify-between items-center'>
+      <Link href='/'>
+        <Image src={logo} alt={"logo"} height='79' width='79' />
+      </Link>
+      {user && (
+        <p className='h2 text-blue items-center'>
+          Hello, {user.bargeMeta.name}
         </p>
-    </header>;
-}
+      )}
+      <p className='h1 text-blue'>
+        <Link
+          className='hover:text-cloud-purple duration-300 transition-all'
+          href='/'
+        >
+          BARGE
+        </Link>
+      </p>
+    </header>
+  );
+};
 
 export default Header;

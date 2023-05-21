@@ -2,11 +2,11 @@
 
 import supabase from "./supabase";
 
-const getUserBySlug = async (slug) => {
+const getUserBySlug = async (name) => {
   const { data, error } = await supabase
     .from("profile")
     .select("user_id")
-    .eq("slug", slug)
+    .eq("name", name)
     .limit(1)
     .single();
   if (error) {
@@ -72,34 +72,33 @@ const addNewLink = async (user_id, title, order, linkType = "link") => {
   };
 };
 // //***************DELETE A TODO******************
-// const deleteNewLink = async (user_id, title, order, linkType = "todo") => {
-//   linkRequestData.data = null;
-//   // const insertResponse = await supabase.from("links").insert({
-//   const deleteResponse = await supabase
-//     .from("todo")
+const deleteNewLink = async (user_id, title, order, linkType = "todo") => {
+  linkRequestData.data = null;
+  // const insertResponse = await supabase.from("links").insert({
+  const deleteResponse = await supabase
+    .from("todo")
 
-//     .delete({
-//       order,
-//       title,
-//       user_id,
-//       linkType,
-//     });
+    .delete({
+      order,
+      title,
+      user_id,
+      linkType,
+    });
 
-//   if (deleteResponse.error) {
-//     return {
-//       success: false,
-//       error: deleteResponse.error,
-//     };
-//   }
-//   return {
-//     success: true,
-//     message: "successfully deleted",
-//     data: deleteResponse.data,
-//   };
-// };
+  if (deleteResponse.error) {
+    return {
+      success: false,
+      error: deleteResponse.error,
+    };
+  }
+  return {
+    success: true,
+    message: "successfully deleted",
+    data: deleteResponse.data,
+  };
+};
 
 const getCurrentUser = async () => {
-  debugger;
   // grab the session from supabase (which handles all authentication)
   const session = await supabase.auth.getSession();
   // if a user property exists in the session.data.session object
@@ -166,7 +165,7 @@ const getLinks = async (userId) => {
   }
 
   const { data, error } = await supabase
-    // choose the DB tabll to take information from
+    // choose the todo  table to take information from
     //.from("links")
     .from("todo")
     .select("*")
@@ -346,7 +345,7 @@ export {
   getSocialLinks,
   getCurrentUser,
   addNewLink,
-  // deleteNewLink,
+  deleteNewLink,
   logout,
   getLatestUsers,
   getUserBySlug,

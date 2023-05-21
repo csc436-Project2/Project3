@@ -1,20 +1,22 @@
+/** @format */
+
 import { getLinksLinks } from "csc-start/utils/data";
 
-const LinksLinks = async ({user_id}) => {
-  const {data: links} = await getLinksLinks(user_id);
-
+const LinksLinks = async ({ user_id }) => {
+  const { data: links } = await getLinksLinks(user_id);
+  console.log("user_id", user_id);
   return (
-    <div className="barge flex flex-col gap-[24px] pb-[60px]">
+    <div className='barge flex flex-col gap-[24px] pb-[60px]'>
       {Array.isArray(links) &&
         links.map(({ id, title, url }) => {
           return (
             <a
               key={id}
               title={title}
-              target="_blank"
-              rel="noopener noreferrer"
+              target='_blank'
+              rel='noopener noreferrer'
               href={url}
-              className="button"
+              className='button'
             >
               {title}
             </a>
