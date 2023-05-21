@@ -1,3 +1,5 @@
+/** @format */
+
 "use client";
 
 import { loginUser } from "csc-start/utils/data";
@@ -46,12 +48,13 @@ const Login = () => {
     dispatch({ type: "loading", value: false });
     if (!!response?.success) {
       setTimeout(() => {
-        router.replace("/profile");
+        // router.replace("/profile");
+        router.replace("/homepage");
       }, 3000);
     }
   };
   return (
-    <div className="barge">
+    <div className='barge'>
       {response && (
         <div
           className={`${
@@ -60,14 +63,14 @@ const Login = () => {
               : "bg-red-200 border-2 border-red-800 text-red-800"
           } py-2 px-5 my-10 text-center`}
         >
-          <span className="font-bold">
+          <span className='font-bold'>
             {response.success
               ? `Success ${response.message}`
               : `Failure: ${response.error.message}`}
           </span>
         </div>
       )}
-      <h2 className="my-10 h1 text-center">Login</h2>
+      <h2 className='my-10 h1 text-center'>Login</h2>
       <form
         onSubmit={login}
         className={loading ? "opacity-[10%] pointer-events-none" : ""}
@@ -84,12 +87,12 @@ const Login = () => {
             }
 
             return (
-              <p key={key} className="mb-5">
-                <label className="h3 capitalize w-[75px] inline-block">
+              <p key={key} className='mb-5'>
+                <label className='h3 capitalize w-[75px] inline-block'>
                   {key}*
                 </label>
                 <input
-                  className="h3 border-2 border-black ml-5 inline-block w-[220px] px-2"
+                  className='h3 border-2 border-black ml-5 inline-block w-[220px] px-2'
                   required
                   name={key}
                   onChange={(e) => {
@@ -101,8 +104,8 @@ const Login = () => {
               </p>
             );
           })}
-        <div className="flex justify-center my-10">
-          <input className="button small" type="submit"></input>
+        <div className='flex justify-center my-10'>
+          <input className='button small' type='submit'></input>
         </div>
       </form>
     </div>

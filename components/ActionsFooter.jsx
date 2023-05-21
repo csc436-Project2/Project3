@@ -29,6 +29,9 @@ const ActionsFooter = () => {
       <Link className='hover:text-cloud-purple' href='/profile'>
         Profile
       </Link>
+      <Link className='hover:text-cloud-purple' href='/homepage'>
+        Home
+      </Link>
       <Link className='hover:text-cloud-purple' href='/logout'>
         Logout
       </Link>

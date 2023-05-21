@@ -13,16 +13,16 @@ const Header = () => {
         <Image src={logo} alt={"logo"} height='79' width='79' />
       </Link>
       {user && (
-        <p className='h2 text-blue items-center'>
+        <p className='h3 text-blue items-center'>
           Hello, {user.bargeMeta.name}
         </p>
       )}
-      <p className='h1 text-blue'>
+      <p className='h3 text-blue'>
         <Link
           className='hover:text-cloud-purple duration-300 transition-all'
           href='/'
         >
-          BARGE
+          TODO LIST
         </Link>
       </p>
     </header>

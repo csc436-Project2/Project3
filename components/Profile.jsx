@@ -48,6 +48,8 @@ const Profile = () => {
     }
     setUrl("");
     setTitle("");
+    // setIsInputDisabled(true);
+
     //@todo update this to either fake get the links (by taking the latest DB load + adding in the latest pushed link)
     //  or make a new request....
     refreshUser();
@@ -186,7 +188,7 @@ const Profile = () => {
                 type='text'
               />
             </p>
-            <p className='my-5'>
+            {/* <p className='my-5'>
               <label htmlFor='todoItems' className='inline-block w-[75px]'>
                 URL:
               </label>
@@ -198,7 +200,7 @@ const Profile = () => {
                 required
                 type='url'
               />
-            </p>
+            </p> */}
             <p className='text-center'>
               <input
                 type='submit'
