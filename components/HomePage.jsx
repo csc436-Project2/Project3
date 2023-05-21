@@ -6,7 +6,7 @@ const HomePage = () => {
   return (
     <Link
       className='hover:text-cloud-purple duration-300 transition-all'
-      href='/profile'
+      href='/todolist'
     >
       <button className='barge button small'>Create TODO LIST</button>
     </Link>

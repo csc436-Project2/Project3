@@ -10,7 +10,9 @@ import useUser from "csc-start/hooks/useUser";
 
 const Login = () => {
   const { user } = useUser();
-  useUserMustBeLogged(user, "out", "/profile");
+  // useUserMustBeLogged(user, "out", "/profile");
+  useUserMustBeLogged(user, "out", "/todolist");
+
   const router = useRouter();
 
   function reducer(state, action) {

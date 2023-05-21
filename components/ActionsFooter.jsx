@@ -26,9 +26,6 @@ const ActionsFooter = () => {
   // user is logged in
   return (
     <div className='flex justify-between text-blue'>
-      <Link className='hover:text-cloud-purple' href='/profile'>
-        Profile
-      </Link>
       <Link className='hover:text-cloud-purple' href='/homepage'>
         Home
       </Link>
